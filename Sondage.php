@@ -2,7 +2,9 @@
 
 /**
  * Classe Sondage — Plateforme de vote en ligne
- * Rôle   : Initialisation du projet (structure de base)
+ * Auteur  : Contributeur A
+ * Branche : feature/resultats
+ * Ajout   : afficherResultats()
  */
 class Sondage
 {
@@ -15,20 +17,14 @@ class Sondage
         $this->titre = $titre;
     }
 
-    /**
-     * Ajoute une option au sondage.
-     */
     public function ajouterOption(string $option): void
     {
         if (!in_array($option, $this->options, true)) {
-            $this->options[]        = $option;
-            $this->votes[$option]   = 0;
+            $this->options[]      = $option;
+            $this->votes[$option] = 0;
         }
     }
 
-    /**
-     * Enregistre un vote pour une option existante.
-     */
     public function voter(string $option): bool
     {
         if (!array_key_exists($option, $this->votes)) {
@@ -38,7 +34,32 @@ class Sondage
         return true;
     }
 
-    public function getOptions(): array  { return $this->options; }
-    public function getVotes(): array    { return $this->votes;   }
-    public function getTitre(): string   { return $this->titre;   }
+    /**
+     * Affiche les résultats du sondage avec pourcentages et barres visuelles.
+     * Contribution du Contributeur A — branche feature/resultats
+     */
+    public function afficherResultats(): void
+    {
+        $total = array_sum($this->votes);
+
+        echo "\n=== Résultats : {$this->titre} ===\n";
+
+        if ($total === 0) {
+            echo "  Aucun vote enregistré.\n";
+            return;
+        }
+
+        foreach ($this->votes as $option => $nb) {
+            $pct   = round(($nb / $total) * 100, 1);
+            $barre = str_repeat('█', (int)($pct / 5));
+            printf("  %-20s │ %-20s %5.1f%% (%d vote%s)\n",
+                $option, $barre, $pct, $nb, $nb > 1 ? 's' : '');
+        }
+
+        echo "  Total : {$total} vote" . ($total > 1 ? 's' : '') . "\n\n";
+    }
+
+    public function getOptions(): array { return $this->options; }
+    public function getVotes(): array   { return $this->votes;   }
+    public function getTitre(): string  { return $this->titre;   }
 }
