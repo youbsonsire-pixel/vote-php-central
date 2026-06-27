@@ -2,15 +2,16 @@
 
 /**
  * Classe Sondage — Plateforme de vote en ligne
- * Auteur  : Contributeur A
- * Branche : feature/resultats
- * Ajout   : afficherResultats()
+ * Auteur  : Contributeur B
+ * Branche : feature/cloture
+ * Ajout   : cloturerSondage() + estCloture()
  */
 class Sondage
 {
     private string $titre;
-    private array  $options = [];
-    private array  $votes   = [];
+    private array  $options   = [];
+    private array  $votes     = [];
+    private bool   $cloture   = false;   // ← ajout Contributeur B
 
     public function __construct(string $titre)
     {
@@ -19,6 +20,9 @@ class Sondage
 
     public function ajouterOption(string $option): void
     {
+        if ($this->cloture) {
+            throw new RuntimeException("Sondage clôturé : impossible d'ajouter une option.");
+        }
         if (!in_array($option, $this->options, true)) {
             $this->options[]      = $option;
             $this->votes[$option] = 0;
@@ -27,6 +31,9 @@ class Sondage
 
     public function voter(string $option): bool
     {
+        if ($this->cloture) {
+            throw new RuntimeException("Sondage clôturé : les votes ne sont plus acceptés.");
+        }
         if (!array_key_exists($option, $this->votes)) {
             return false;
         }
@@ -34,15 +41,14 @@ class Sondage
         return true;
     }
 
-    /**
-     * Affiche les résultats du sondage avec pourcentages et barres visuelles.
-     * Contribution du Contributeur A — branche feature/resultats
-     */
     public function afficherResultats(): void
     {
         $total = array_sum($this->votes);
 
         echo "\n=== Résultats : {$this->titre} ===\n";
+        if ($this->cloture) {
+            echo "  [SONDAGE CLÔTURÉ — résultats définitifs]\n";
+        }
 
         if ($total === 0) {
             echo "  Aucun vote enregistré.\n";
@@ -57,6 +63,29 @@ class Sondage
         }
 
         echo "  Total : {$total} vote" . ($total > 1 ? 's' : '') . "\n\n";
+    }
+
+    /**
+     * Clôture définitivement le sondage.
+     * Contribution du Contributeur B — branche feature/cloture
+     */
+    public function cloturerSondage(): void
+    {
+        if ($this->cloture) {
+            echo "Le sondage \"{$this->titre}\" est déjà clôturé.\n";
+            return;
+        }
+        $this->cloture = true;
+        echo "Sondage \"{$this->titre}\" clôturé avec succès. Aucun vote supplémentaire ne sera accepté.\n";
+    }
+
+    /**
+     * Indique si le sondage est clôturé.
+     * Contribution du Contributeur B — branche feature/cloture
+     */
+    public function estCloture(): bool
+    {
+        return $this->cloture;
     }
 
     public function getOptions(): array { return $this->options; }
